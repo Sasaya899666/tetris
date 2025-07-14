@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>進階俄羅斯方塊 - 排行榜版</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="game-container">
+    <!-- 主標題 -->
+    <header class="game-header">
+      <h1>🎮 進階俄羅斯方塊</h1>
+      <div class="header-controls">
+        <button id="showLeaderboard" class="btn btn-secondary">📊 排行榜</button>
+        <button id="showStats" class="btn btn-secondary">📈 統計</button>
+      </div>
+    </header>
+
+    <!-- 主遊戲區域 -->
+    <div class="main-game-area">
+      <!-- 遊戲畫布 -->
+      <div class="game-board">
+        <canvas id="tetris" width="300" height="600"></canvas>
+        <div class="game-overlay" id="gameOverlay">
+          <div class="overlay-content">
+            <h2 id="overlayTitle">遊戲結束</h2>
+            <p id="overlayMessage">您的分數: <span id="finalScore">0</span></p>
+            <div id="nameInputSection" style="display: none;">
+              <input type="text" id="playerName" placeholder="請輸入您的姓名 (2-20字元)" maxlength="20">
+              <button id="submitScore" class="btn btn-primary">提交分數</button>
+            </div>
+            <button id="restartGame" class="btn btn-primary">重新開始</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 遊戲資訊面板 -->
+      <div class="game-info">
+        <div class="info-section">
+          <h3>🎯 遊戲資訊</h3>
+          <div class="info-item">
+            <span class="label">分數:</span>
+            <span id="score" class="value">0</span>
+          </div>
+          <div class="info-item">
+            <span class="label">等級:</span>
+            <span id="level" class="value">1</span>
+          </div>
+          <div class="info-item">
+            <span class="label">消除行數:</span>
+            <span id="lines" class="value">0</span>
+          </div>
+          <div class="info-item">
+            <span class="label">最高分:</span>
+            <span id="highscore" class="value">0</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>🔮 下一個方塊</h3>
+          <canvas id="preview" width="120" height="120"></canvas>
+        </div>
+
+        <div class="info-section">
+          <h3>🎮 遊戲控制</h3>
+          <div class="control-buttons">
+            <button id="startBtn" class="btn btn-success">開始遊戲</button>
+            <button id="pauseBtn" class="btn btn-warning">暫停</button>
+            <button id="resetBtn" class="btn btn-danger">重新開始</button>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>⌨️ 操作說明</h3>
+          <div class="controls-info">
+            <div class="control-item">← → 移動</div>
+            <div class="control-item">↑ 旋轉</div>
+            <div class="control-item">↓ 快速下落</div>
+            <div class="control-item">空白鍵 立即落下</div>
+            <div class="control-item">P 暫停</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 排行榜模態框 -->
+    <div id="leaderboardModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🏆 排行榜</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div id="leaderboardList" class="leaderboard-list">
+            <!-- 排行榜內容將由JavaScript動態生成 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 統計模態框 -->
+    <div id="statsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📈 玩家統計</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="stats-input">
+            <input type="text" id="statsPlayerName" placeholder="輸入玩家姓名查詢統計">
+            <button id="searchStats" class="btn btn-primary">查詢</button>
+          </div>
+          <div id="statsResult" class="stats-result">
+            <!-- 統計結果將由JavaScript動態生成 -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/tetris.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+</body>
+</html>
