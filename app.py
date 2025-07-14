@@ -208,4 +208,10 @@ def get_player_stats():
     return jsonify(stats)
 
 if __name__ == '__main__':
+    print("🚀 俄羅斯方塊遊戲啟動中...")
+    print("📱 請在瀏覽器中訪問以下地址：")
+    print("   - 本地訪問: http://localhost:5000")
+    print("   - 網路訪問: http://172.30.0.2:5000")
+    print("   - 或嘗試: http://172.17.0.1:5000")
+    print("🎮 遊戲已準備就緒！")
     app.run(debug=True, host='0.0.0.0', port=5000)
