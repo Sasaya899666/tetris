@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲測試頁面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .log {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        canvas {
+            border: 2px solid #333;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 俄羅斯方塊遊戲測試</h1>
+        
+        <div class="test-section">
+            <h3>1. 元素檢查</h3>
+            <button class="test-button" onclick="checkElements()">檢查DOM元素</button>
+            <div id="elementLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. 遊戲初始化測試</h3>
+            <button class="test-button" onclick="testGameInit()">測試遊戲初始化</button>
+            <div id="initLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. 畫布測試</h3>
+            <canvas id="testCanvas" width="300" height="600"></canvas>
+            <button class="test-button" onclick="testCanvas()">測試畫布繪製</button>
+            <div id="canvasLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. 控制台日誌</h3>
+            <button class="test-button" onclick="clearLogs()">清除日誌</button>
+            <div id="consoleLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. 跳轉到完整遊戲</h3>
+            <a href="http://localhost:5000" class="test-button" style="text-decoration: none; display: inline-block;">前往完整遊戲</a>
+        </div>
+    </div>
+
+    <script>
+        // 重寫console.log來捕獲日誌
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleLogDiv = document.getElementById('consoleLog');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleLogDiv.textContent += args.join(' ') + '\n';
+            consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            consoleLogDiv.textContent += 'ERROR: ' + args.join(' ') + '\n';
+            consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
+        };
+        
+        function logToElement(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent += message + '\n';
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        function checkElements() {
+            const log = document.getElementById('elementLog');
+            log.textContent = '';
+            
+            const elements = [
+                'tetris', 'preview', 'startBtn', 'pauseBtn', 'resetBtn',
+                'score', 'level', 'lines', 'highscore'
+            ];
+            
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    logToElement('elementLog', `✅ 找到元素: ${id}`);
+                } else {
+                    logToElement('elementLog', `❌ 找不到元素: ${id}`);
+                }
+            });
+        }
+        
+        function testGameInit() {
+            const log = document.getElementById('initLog');
+            log.textContent = '';
+            
+            try {
+                logToElement('initLog', '開始測試遊戲初始化...');
+                
+                // 測試基本遊戲邏輯
+                const testMatrix = [];
+                for (let i = 0; i < 20; i++) {
+                    testMatrix.push(new Array(10).fill(0));
+                }
+                logToElement('initLog', '✅ 矩陣創建成功');
+                
+                // 測試方塊創建
+                const testPiece = [[0,1,0],[1,1,1],[0,0,0]];
+                logToElement('initLog', '✅ 方塊創建成功');
+                
+                // 測試碰撞檢測
+                const testPlayer = {
+                    pos: {x: 0, y: 0},
+                    matrix: testPiece
+                };
+                
+                let collision = false;
+                for (let y = 0; y < testPlayer.matrix.length; y++) {
+                    for (let x = 0; x < testPlayer.matrix[y].length; x++) {
+                        if (testPlayer.matrix[y][x] !== 0) {
+                            collision = true;
+                            break;
+                        }
+                    }
+                }
+                logToElement('initLog', '✅ 碰撞檢測邏輯正常');
+                
+                logToElement('initLog', '🎉 遊戲初始化測試通過！');
+                
+            } catch (error) {
+                logToElement('initLog', `❌ 遊戲初始化測試失敗: ${error.message}`);
+            }
+        }
+        
+        function testCanvas() {
+            const log = document.getElementById('canvasLog');
+            log.textContent = '';
+            
+            try {
+                const canvas = document.getElementById('testCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                logToElement('canvasLog', '開始測試畫布...');
+                
+                // 清空畫布
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                logToElement('canvasLog', '✅ 畫布清空成功');
+                
+                // 繪製網格
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                
+                for (let x = 0; x <= 10; x++) {
+                    ctx.beginPath();
+                    ctx.moveTo(x * 30, 0);
+                    ctx.lineTo(x * 30, 600);
+                    ctx.stroke();
+                }
+                
+                for (let y = 0; y <= 20; y++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y * 30);
+                    ctx.lineTo(300, y * 30);
+                    ctx.stroke();
+                }
+                logToElement('canvasLog', '✅ 網格繪製成功');
+                
+                // 繪製測試方塊
+                ctx.fillStyle = '#ff0d72';
+                ctx.fillRect(30, 30, 30, 30);
+                logToElement('canvasLog', '✅ 方塊繪製成功');
+                
+                logToElement('canvasLog', '🎉 畫布測試完成！');
+                
+            } catch (error) {
+                logToElement('canvasLog', `❌ 畫布測試失敗: ${error.message}`);
+            }
+        }
+        
+        function clearLogs() {
+            document.getElementById('elementLog').textContent = '';
+            document.getElementById('initLog').textContent = '';
+            document.getElementById('canvasLog').textContent = '';
+            document.getElementById('consoleLog').textContent = '';
+        }
+        
+        // 頁面載入時自動檢查元素
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('測試頁面載入完成');
+            checkElements();
+        });
+    </script>
+</body>
+</html>

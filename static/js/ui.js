@@ -199,11 +199,11 @@ let uiManager;
 document.addEventListener('DOMContentLoaded', () => {
     uiManager = new UIManager();
     
+    // 導出UI管理器供其他模組使用
+    window.uiManager = uiManager;
+    
     // 導出刷新排行榜函數供遊戲使用
     window.refreshLeaderboard = () => {
         uiManager.loadLeaderboard();
     };
 });
-
-// 導出UI管理器供其他模組使用
-window.uiManager = uiManager;

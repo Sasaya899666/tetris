@@ -1,10 +1,21 @@
 // 俄羅斯方塊遊戲核心邏輯
 class TetrisGame {
     constructor() {
+        console.log('開始初始化遊戲...');
+        
         this.canvas = document.getElementById('tetris');
+        if (!this.canvas) {
+            throw new Error('找不到遊戲畫布元素');
+        }
         this.context = this.canvas.getContext('2d');
+        
         this.previewCanvas = document.getElementById('preview');
+        if (!this.previewCanvas) {
+            throw new Error('找不到預覽畫布元素');
+        }
         this.previewCtx = this.previewCanvas.getContext('2d');
+        
+        console.log('畫布元素找到，設置縮放...');
         
         // 設置畫布縮放
         this.context.scale(15, 15);
@@ -45,10 +56,11 @@ class TetrisGame {
     }
     
     init() {
+        console.log('初始化遊戲狀態...');
         this.updateScore();
         this.playerReset();
         this.drawPreview();
-        this.update();
+        console.log('遊戲初始化完成');
     }
     
     createMatrix(w, h) {
@@ -89,14 +101,18 @@ class TetrisGame {
     }
     
     draw() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // 繪製網格背景
-        this.drawGrid();
-        
-        // 繪製遊戲區域
-        this.drawMatrix(this.arena, {x: 0, y: 0}, this.context);
-        this.drawMatrix(this.player.matrix, this.player.pos, this.context);
+        try {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // 繪製網格背景
+            this.drawGrid();
+            
+            // 繪製遊戲區域
+            this.drawMatrix(this.arena, {x: 0, y: 0}, this.context);
+            this.drawMatrix(this.player.matrix, this.player.pos, this.context);
+        } catch (error) {
+            console.error('繪製遊戲時發生錯誤:', error);
+        }
     }
     
     drawGrid() {
@@ -171,12 +187,17 @@ class TetrisGame {
     }
     
     playerReset() {
+        console.log('重置玩家狀態...');
         this.player.matrix = this.player.next || this.createPiece(this.pieces[Math.floor(Math.random() * this.pieces.length)]);
         this.player.next = this.createPiece(this.pieces[Math.floor(Math.random() * this.pieces.length)]);
         this.player.pos.y = 0;
         this.player.pos.x = (this.arena[0].length / 2 | 0) - (this.player.matrix[0].length / 2 | 0);
         
+        console.log('玩家位置:', this.player.pos);
+        console.log('玩家方塊:', this.player.matrix);
+        
         if (this.collide(this.arena, this.player)) {
+            console.log('遊戲結束！');
             this.gameOver = true;
             this.endGame();
         }
@@ -231,7 +252,10 @@ class TetrisGame {
     }
     
     update(time = 0) {
-        if (this.paused || this.gameOver) return;
+        if (this.paused || this.gameOver) {
+            console.log('遊戲暫停或結束，停止更新');
+            return;
+        }
         
         const deltaTime = time - this.lastTime;
         this.lastTime = time;
@@ -258,11 +282,15 @@ class TetrisGame {
     }
     
     startGame() {
+        console.log('開始遊戲...');
         if (this.gameOver) {
+            console.log('遊戲結束狀態，重置遊戲');
             this.resetGame();
         }
         this.paused = false;
         this.gameStartTime = Date.now();
+        this.lastTime = 0; // 重置時間
+        console.log('開始遊戲循環');
         this.update();
     }
     
@@ -411,50 +439,88 @@ class TetrisGame {
 let game;
 
 document.addEventListener('DOMContentLoaded', () => {
-    game = new TetrisGame();
+    console.log('DOM載入完成，初始化遊戲...');
     
-    // 鍵盤事件監聽
-    document.addEventListener('keydown', (event) => {
-        game.handleKeydown(event);
-    });
-    
-    // 按鈕事件
-    document.getElementById('startBtn').addEventListener('click', () => {
-        game.startGame();
-    });
-    
-    document.getElementById('pauseBtn').addEventListener('click', () => {
-        game.pauseGame();
-    });
-    
-    document.getElementById('resetBtn').addEventListener('click', () => {
-        game.resetGame();
-    });
-    
-    // 提交分數
-    document.getElementById('submitScore').addEventListener('click', () => {
-        const playerName = document.getElementById('playerName').value.trim();
-        if (playerName.length >= 2 && playerName.length <= 20) {
-            game.submitScore(playerName);
-            document.getElementById('gameOverlay').style.display = 'none';
+    try {
+        game = new TetrisGame();
+        console.log('遊戲初始化成功');
+        
+        // 導出遊戲實例供其他模組使用
+        window.game = game;
+        
+        // 鍵盤事件監聽
+        document.addEventListener('keydown', (event) => {
+            game.handleKeydown(event);
+        });
+        
+        // 按鈕事件
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        if (startBtn) {
+            startBtn.addEventListener('click', () => {
+                console.log('開始遊戲按鈕被點擊');
+                game.startGame();
+            });
         } else {
-            alert('請輸入2-20字元的姓名');
+            console.error('找不到開始遊戲按鈕');
         }
-    });
-    
-    // 重新開始遊戲
-    document.getElementById('restartGame').addEventListener('click', () => {
-        document.getElementById('gameOverlay').style.display = 'none';
-        game.resetGame();
-    });
-    
-    // 姓名輸入框回車提交
-    document.getElementById('playerName').addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            document.getElementById('submitScore').click();
+        
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => {
+                console.log('暫停按鈕被點擊');
+                game.pauseGame();
+            });
+        } else {
+            console.error('找不到暫停按鈕');
         }
-    });
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                console.log('重新開始按鈕被點擊');
+                game.resetGame();
+            });
+        } else {
+            console.error('找不到重新開始按鈕');
+        }
+        
+        // 提交分數
+        const submitScoreBtn = document.getElementById('submitScore');
+        if (submitScoreBtn) {
+            submitScoreBtn.addEventListener('click', () => {
+                const playerName = document.getElementById('playerName').value.trim();
+                if (playerName.length >= 2 && playerName.length <= 20) {
+                    game.submitScore(playerName);
+                    document.getElementById('gameOverlay').style.display = 'none';
+                } else {
+                    alert('請輸入2-20字元的姓名');
+                }
+            });
+        }
+        
+        // 重新開始遊戲
+        const restartGameBtn = document.getElementById('restartGame');
+        if (restartGameBtn) {
+            restartGameBtn.addEventListener('click', () => {
+                document.getElementById('gameOverlay').style.display = 'none';
+                game.resetGame();
+            });
+        }
+        
+        // 姓名輸入框回車提交
+        const playerNameInput = document.getElementById('playerName');
+        if (playerNameInput) {
+            playerNameInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    document.getElementById('submitScore').click();
+                }
+            });
+        }
+        
+        console.log('所有事件監聽器設置完成');
+        
+    } catch (error) {
+        console.error('遊戲初始化失敗:', error);
+    }
 });
-
-// 導出遊戲實例供其他模組使用
-window.game = game;
